@@ -1,6 +1,6 @@
 // Load http module
 let http = require("http");
-let PORT = process.env.PORT;
+let PORT = process.env.PORT || 8001;
 
 // Load express module
 let express = require("express");
@@ -8,7 +8,9 @@ let app = express();
 
 // Create server
 // Hook it up to listen to the correct PORT
-let server = http.createServer(app).listen(PORT);
+let server = http.createServer(app).listen(PORT, function(){
+  console.log("listening on port: ", PORT);
+});
 
 // Point my app at the public folder to serve up the index.html file
 app.use(express.static("public"));
