@@ -1,6 +1,6 @@
 // Load http module
 let http = require("http");
-let PORT = process.env.PORT || 8000;
+let PORT = process.env.PORT || 8001;
 
 // Load express module
 let express = require("express");
@@ -16,8 +16,13 @@ let server = http.createServer(app).listen(PORT, function(){
 app.use(express.static("public"));
 
 // Load the socket.io functionality
-// Hook it up to the web server
-let io = require("socket.io")(server);
+// Create socket server
+let io = require('socket.io')(server, {
+  cors: {
+    origin: true
+  },
+  allowEIO3: true
+});
 
 // Listen for connections
 io.on(
@@ -28,7 +33,7 @@ io.on(
     console.log("HELLO", socket.id);
 
     socket.on('pozyx', function(){
-      console.log("Hi from pozyx:", socket.id);
+      //console.log("Hi from pozyx:", socket.id);
     })
 
     // This connected socket listens for incoming messages called 'data'
