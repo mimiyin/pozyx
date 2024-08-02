@@ -31,20 +31,23 @@ io.on(
   // Comes back with a socket object
   function(socket) {
     console.log("HELLO", socket.id);
-
-    socket.on('pozyx', function(){
-      //console.log("Hi from pozyx:", socket.id);
-    })
-
-    // This connected socket listens for incoming messages called 'data'
-    socket.on('message', function(message){
-
-      // Log the data that came in
-      console.log(message);
-
-      // Send it back out to everyone
-      io.emit('message', message);
-    });
-
   }
 );
+
+const mqtt = require("mqtt");
+const client = mqtt.connect("tcp://10.0.0.254:1883");
+
+client.on("connect", () => {
+  client.subscribe("tags", (err) => {
+    if (!err) {
+      console.log("Hello mqtt");
+    }
+  });
+});
+
+client.on("message", (topic, message) => {
+  // message is Buffer
+  //console.log(message.toString());
+  io.emit("pozyx", JSON.parse(message.toString()));
+  //client.end();
+});

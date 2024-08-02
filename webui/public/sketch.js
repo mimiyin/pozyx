@@ -63,21 +63,27 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   // Listen for data coming from the server
-  socket.on('message', function(message) {
+  socket.on('pozyx', function(message) {
     // Log the data
     //console.log('Received message: ', message);
     // Draw a circle at the y-position of the other user
-    let id = message.id;
-    let ts = message.ts;
-    let x = message.x / 10;
-    let y = message.y / 10;
+    let tag = message[0];
+    let data = tag.data;
+    let id = tag.tagId;
+    let ts = tag.ts;
+    if(data) {
+      if(data.coordinates) {
+        let x = data.coordinates.x / 10;
+        let y = data.coordinates.y / 10;
 
-    console.log(message);
+        //console.log(id, x, y);
 
-    tags[id] = {
-      ts: ts,
-      x: x,
-      y: y
+        tags[id] = {
+          ts: ts,
+          x: x,
+          y: y
+        }
+      }
     }
   });
 
@@ -132,15 +138,21 @@ function draw() {
     stroke(0);
     line(pair[0].x, pair[0].y, pair[1].x, pair[1].y)
 
-    let ox = (pair[0].x - pair[1].x);
-    let oy = (pair[0].y - pair[1].y);
+    let ox = (pair[1].x - pair[0].x);
+    let oy = (pair[1].y - pair[0].y);
 
-    o = createVector(ox, oy).heading();
+    let mx = (pair[0].x + pair[1].x)/2;
+    let my = (pair[0].y + pair[1].y)/2;
+
+    o = createVector(mouseX-(mx + width/2), mouseY-my).heading();
+
+    // o = createVector(ox, oy).heading();
+    //o+=PI/2;
     push();
-    translate(pair[0].x, pair[0].y);
-    rotate(o-PI/4);
+    translate(mx,my);
+    rotate(-o);
     strokeWeight(3);
-    line(0, 0, 30, 30);
+    line(0, 0, 30, 0);
     pop();
     o-=PI;
     updateRate();
@@ -180,9 +192,9 @@ function mapRate(o) {
 }
 
 function updateRate() {
-
+  console.log(o);
   // Remap orientation from board
-  o = map(o, -PI, PI, 360, 0);
+  o = map(o, -TWO_PI, 0, 360, 0);
 
   // Wrap around
   if (o > 360) o = o - 360;
@@ -218,26 +230,26 @@ function updateRate() {
     return false;
   }
 
-  // // New note
-  // //console.log("NEW NOTE");
-  // // Going right and rate gets lower
-  // let crossedCW = dir > 0 && r < pr;
-  // // Going left and rate gets higher
-  // let crossedCCW = dir < 0 && r > pr;
-  //
-  //
-  // if (crossedCCW) {
-  //   console.log("Crossed CCW");
-  //   base /= 2;
-  // }
-  // else if (crossedCW) {
-  //   console.log("Crossed CCW");
-  //   base *= 2;
-  // }
-  //
-  // // cross CCW
-  // // true, true, 2, 1
-  // console.log("CROSSED", dir, r, pr);
+  // New note
+  //console.log("NEW NOTE");
+  // Going right and rate gets lower
+  let crossedCW = dir > 0 && r < pr;
+  // Going left and rate gets higher
+  let crossedCCW = dir < 0 && r > pr;
+  
+  
+  if (crossedCCW) {
+    //console.log("Crossed CCW");
+    //base /= 2;
+  }
+  else if (crossedCW) {
+    //console.log("Crossed CCW");
+    //base *= 2;
+  }
+  
+  // cross CCW
+  // true, true, 2, 1
+  //console.log("CROSSED", dir, r, pr);
 
   // Remember for next time
   pr = r;
