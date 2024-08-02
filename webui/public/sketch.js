@@ -73,7 +73,7 @@ function setup() {
     let y = message.y / 10;
 
     console.log(message);
-    
+
     tags[id] = {
       ts: ts,
       x: x,
